@@ -35,7 +35,7 @@ To run this application, ensure you have the following installed:
    ```bash
    git clone https://github.com/EnContacto/L2-NodeJsWebApp.git
    cd L2-NodeJsWebApp
-2. **Install Dependencies **
+2. **Install Dependencies**
 
    Install the necessary dependencies with:
    ```bash
@@ -59,4 +59,5 @@ The application should now be accessible at http://localhost:5454 in your web br
 
 ## Troubleshooting
 Ensure Docker is installed and running correctly if using the Docker setup.
+
 Make sure no other application is using port 5454 before running the server.
