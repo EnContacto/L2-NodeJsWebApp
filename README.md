@@ -19,13 +19,44 @@ The application is designed to run on port `5454` by default.
 
 To run this application on your local machine, follow these steps:
 
-#### Prerequisites:
-- [Node.js](https://nodejs.org/) installed on your machine.
+## Prerequisites
+
+To run this application, ensure you have the following installed:
+
+- **Node.js** (version 14 or later)
+- **Git** (optional, for cloning the repository)
 
 #### Steps:
-1. **Clone the repository:**
+## Installation and Running Locally
 
-   Open a terminal and run the following command to clone the repository from GitHub:
+1. **Clone the Repository**
 
+   Open a terminal and clone the repository:
    ```bash
    git clone https://github.com/EnContacto/L2-NodeJsWebApp.git
+   cd L2-NodeJsWebApp
+2. **Install Dependencies **
+
+   Install the necessary dependencies with:
+   ```bash
+   npm install
+3. **Run the Application**
+
+   Start the application with the following command:
+   ```bash
+   node app.js
+  The application should now be accessible at http://localhost:5454 in your web browser.
+### Running with Docker
+You can also run this application using Docker for a containerized environment.
+1. In the project’s root directory, open a terminal and run:
+   ```bash
+   docker build -t nodejs-webapp .
+
+2. After the image is built, run the container using:
+   ```bash
+   docker run -p 5454:5454 nodejs-webapp
+The application should now be accessible at http://localhost:5454 in your web browser.
+
+## Troubleshooting
+Ensure Docker is installed and running correctly if using the Docker setup.
+Make sure no other application is using port 5454 before running the server.
