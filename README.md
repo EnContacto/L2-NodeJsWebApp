@@ -24,7 +24,7 @@ To run this application on your local machine, follow these steps:
 To run this application, ensure you have the following installed:
 
 - **Node.js** (version 14 or later)
-- **Git** (optional, for cloning the repository)
+- **Git** (for cloning the repository)
 
 #### Steps:
 ## Installation and Running Locally
