@@ -46,7 +46,8 @@ To run this application, ensure you have the following installed:
    ```bash
    node app.js
   The application should now be accessible at http://localhost:5454 in your web browser.
-### Running with Docker
+  
+### 1. **Running the Application with Docker**
 You can also run this application using Docker for a containerized environment.
 1. In the project’s root directory, open a terminal and run:
    ```bash
