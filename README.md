@@ -45,7 +45,7 @@ To run this application, ensure you have the following installed:
    Start the application with the following command:
    ```bash
    node app.js
-  The application should now be accessible at http://localhost:5454 in your web browser.
+  The application should now be accessible at `http://localhost:5454` in your web browser.
   
 ## **Running the Application with Docker**
 
@@ -57,9 +57,9 @@ You can also run this application using Docker for a containerized environment.
 2. After the image is built, run the container using:
    ```bash
    docker run -p 5454:5454 nodejs-webapp
-The application should now be accessible at http://localhost:5454 in your web browser.
+The application should now be accessible at `http://localhost:5454` in your web browser.
 
 ## Troubleshooting
-Ensure Docker is installed and running correctly if using the Docker setup.
+- Ensure Docker is installed and running correctly if using the Docker setup.
 
-Make sure no other application is using port 5454 before running the server.
+- Make sure no other application is using port 5454 before running the server.
