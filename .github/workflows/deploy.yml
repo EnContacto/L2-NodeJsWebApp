@@ -1,0 +1,32 @@
+name: Build, Push, and Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        push: true
+        tags: ztencontacto/nodewebapp:latest
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull ztencontacto/nodewebapp:latest
+          docker stop nodewebapp || true
+          docker rm nodewebapp || true
+          docker run -d --name nodewebapp -p 5454:5454 ztencontacto/nodewebapp:latest
