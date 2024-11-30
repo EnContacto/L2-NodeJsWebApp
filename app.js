@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
   res.send(`
     <html>
       <head>
-        <title>Greeting</title>
+        <title>Greeting and Test Git Actions</title>
         <style>
           body {
             display: flex;
