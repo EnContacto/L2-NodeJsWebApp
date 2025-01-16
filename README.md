@@ -62,4 +62,4 @@ The application should now be accessible at `http://localhost:5454` in your web 
 ## Troubleshooting
 - Ensure Docker is installed and running correctly if using the Docker setup.
 
-- Make sure no other application is using port 5454 before running the server.
+- Make sure no other application is using port 5454 before running the server
