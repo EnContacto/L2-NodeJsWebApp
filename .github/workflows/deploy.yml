@@ -1,42 +1,86 @@
-name: Build, Push, and Deploy to EC2
+name: EC2 deploy from docker
 
 on:
   push:
-    branches:
-      - main
+    branches: ["QA"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  APP_NAME: nodewebapp
+  APP_PORT: 5454
 
 jobs:
-  build-push-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        environment: ["QA", "PRODUCTION"]
+
     steps:
-    # 1. Clonar el código
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Set Environment Variables
+        run: |
+          echo "Setting environment variables for ${{ matrix.environment }}"
+          if [[ "${{ matrix.environment }}" == "QA" ]]; then
+            echo "EC2_HOSTS=${{ secrets.EC2_HOSTS_QA }}" >> $GITHUB_ENV
+            echo "EC2_KEY=$(echo '${{ secrets.EC2_KEY_QA }}' | tr -d '\n')" >> $GITHUB_ENV
+            echo "TAG=latest" >> $GITHUB_ENV
+          elif [[ "${{ matrix.environment }}" == "PRODUCTION" ]]; then
+            echo "EC2_HOSTS=${{ secrets.EC2_HOSTS_PRD }}" >> $GITHUB_ENV
+            echo "EC2_KEY=$(echo '${{ secrets.EC2_KEY_PRD }}' | tr -d '\n')" >> $GITHUB_ENV
+            echo "TAG=latest" >> $GITHUB_ENV
+          fi
+          echo "Environment variables set successfully."
 
-    # 2. Iniciar sesión en Docker Hub
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    # 3. Construir y enviar la imagen a Docker Hub
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        push: true
-        tags: ztencontacto/nodewebapp:latest
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # 4. Conectar y desplegar en EC2
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ec2-user
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          docker pull ztencontacto/nodewebapp:latest
-          docker stop nodewebapp || true
-          docker rm nodewebapp || true
-          docker run -d --name nodewebapp -p 5454:5454 ztencontacto/nodewebapp:latest
+      - name: Build and Push Docker Image
+        run: |
+          echo "Building Docker image..."
+          docker build -t ${{ env.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ env.TAG }} .
+          echo "Pushing Docker image..."
+          docker push ${{ env.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ env.TAG }}
+          echo "Docker image built and pushed successfully."
+
+      - name: Deploy to EC2 Instances
+        run: |
+          echo "Starting deployment to EC2 instances..."
+          IFS=',' read -ra HOSTS <<< "${{ env.EC2_HOSTS }}"
+          for HOST in "${HOSTS[@]}"; do
+            echo "Connecting to $HOST"
+            ssh -o StrictHostKeyChecking=no -i <(echo "${{ env.EC2_KEY }}") ubuntu@$HOST "
+              if ! command -v docker &> /dev/null; then
+                echo 'Installing Docker...'
+                sudo apt update && sudo apt install -y docker.io
+                sudo systemctl start docker
+                sudo systemctl enable docker
+                sudo usermod -aG docker \$USER
+                sudo systemctl restart docker
+              else
+                echo 'Docker is already installed.'
+              fi
+
+              if ! sudo systemctl is-active --quiet docker; then
+                sudo systemctl start docker
+              fi
+
+              echo 'Pulling Docker image...'
+              sudo docker pull ${{ env.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ env.TAG }}
+              echo 'Stopping any running containers...'
+              sudo docker stop \$(docker ps -q) || true
+              sudo docker rm \$(docker ps -aq) || true
+              echo 'Starting new container...'
+              sudo docker run -d --name ${{ env.APP_NAME }} -p ${{ env.APP_PORT }}:${{ env.APP_PORT }} ${{ env.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${{ env.TAG }}
+            "
+            echo "Deployment to $HOST completed."
+          done
+
