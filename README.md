@@ -8,7 +8,7 @@ This is a simple web application built with Node.js. The app greets the user wit
 The application is designed to run on port `5454` by default.
 
 ## Features:
-- Displays a time-based greeting (morning, afternoon, or evening).
+- Displays a time-based greeting (morning, afternoon, or evening)
 - Shows the number of days remaining until the end of the year.
 
 ---
