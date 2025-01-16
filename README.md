@@ -40,7 +40,7 @@ To run this application, ensure you have the following installed:
    Install the necessary dependencies with:
    ```bash
    npm install
-3. **Run the Application**
+3. **Run the Application.**
 
    Start the application with the following command:
    ```bash
